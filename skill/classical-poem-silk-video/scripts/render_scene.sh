@@ -30,7 +30,7 @@ case "$fade_mode" in
     ;;
 esac
 
-if ffprobe -v error -select_streams a:0 -show_entries stream=index -of csv=p=0 "$input" | rg -q '[0-9]'; then
+if ffprobe -v error -select_streams a:0 -show_entries stream=index -of csv=p=0 "$input" | grep -q '[0-9]'; then
   ffmpeg -y \
     -i "$input" \
     -filter_complex "[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1,subtitles='$ass':fontsdir='$skill_dir/assets'$video_fade,format=yuv420p[v];[0:a]atrim=start=0:end=$duration,asetpts=N/SR/TB,volume=0.92$audio_fade[a]" \
