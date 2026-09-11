@@ -28,7 +28,7 @@
     <rect x="0" y="0" width="8" height="330" rx="4" fill="#934936" opacity="0.85"/>
     <text x="43" y="92" fill="#243d3e" font-family="PingFang SC,Noto Serif CJK SC,serif" font-size="64" font-weight="700">古诗词，中国画，真正的画中动态</text>
     <text x="43" y="164" fill="#934936" font-family="Avenir Next,Arial,sans-serif" font-size="31" font-weight="700" letter-spacing="4">HBG CLASSICAL POEM SILK VIDEO</text>
-    <text x="43" y="224" fill="#435554" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="29">ImageGen 静帧 · Docker I2V · 毛笔字逐字题写 · 原环境声 + BGM · 最终 MP4 QA</text>
+    <text x="43" y="224" fill="#435554" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="29">ImageGen 静帧 · Wan 3.0 I2V · 毛笔字逐字题写 · 原环境声 + BGM · 最终 MP4 QA</text>
     <text x="43" y="284" fill="#5d6966" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="24">Agent Skill for vertical Chinese-art poetry videos</text>
   </g>
   <g transform="translate(1440,358)">

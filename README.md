@@ -7,7 +7,7 @@
   <img src="https://img.shields.io/badge/Agent%20Skill-SKILL.md-8b5cf6?style=flat-square" alt="Agent Skill" />
   <img src="https://img.shields.io/badge/Canvas-1080%C3%971920-b45309?style=flat-square" alt="1080x1920" />
   <img src="https://img.shields.io/badge/Stills-ImageGen-2563eb?style=flat-square" alt="ImageGen" />
-  <img src="https://img.shields.io/badge/I2V-Docker-0f766e?style=flat-square" alt="Docker I2V" />
+  <img src="https://img.shields.io/badge/I2V-Wan%203.0-0f766e?style=flat-square" alt="Wan 3.0 I2V" />
   <img src="https://img.shields.io/badge/Audio-ambience%20%2B%20BGM-c2410c?style=flat-square" alt="Ambience and BGM" />
   <img src="https://img.shields.io/badge/QA-final%20MP4-25221f?style=flat-square" alt="Final MP4 QA" />
 </p>
@@ -56,7 +56,7 @@ classical-poem-silk-video skill。
 | 马匹走动时多腿、悬空或换身体 | 限制为一次重心变化或小步，检查四蹄、地面接触和身体一致性 |
 | 所有动作同时发生导致整幅画重构 | 每景只设一个主动作，加一到两个环境辅助动作 |
 | 转场时黑一下，环境声突然断掉 | 画面用 `xfade`，原环境声用 `acrossfade`，BGM 连续播放 |
-| 白色 Gemini 星标和传统红印一起被删 | 只处理右下角白色星标，红色方印作为画面内容保留 |
+| 图生视频阶段依赖浏览器自动化或海外服务 | 使用阿里云百炼 Wan 3.0 官方 DashScope API，直接从本地首帧生成视频 |
 | 字幕像普通视频字体 | 内置 Ma Shan Zheng，右列先写、左列后写，逐字出现 |
 | 浏览器预览没问题，最终 MP4 却有黑帧 | 对最终编码视频重新抽帧、检查转场中点、末帧、黑帧和音轨 |
 
@@ -68,7 +68,7 @@ classical-poem-silk-video skill。
 | 分镜分组 | 四句以内默认逐句；长诗默认连续两句一景 |
 | 画面风格 | 在统一中国画品质下，按诗意切换水墨、工笔、青绿、鞍马等支线 |
 | 静帧生成 | 使用 Codex 内置 ImageGen，预留竖排题字安全区 |
-| 图生视频 | 通过 Docker 调用 Gemini I2V，不在生成阶段操控用户浏览器 |
+| 图生视频 | 通过 DashScope 调用阿里云百炼 Wan 3.0，以本地静帧作为首帧生成视频 |
 | 动作提示词 | 静态锚点、局部动作区、稳定收尾、反幻觉禁令四段式结构 |
 | 字幕 | Ma Shan Zheng 毛笔字体，两列竖排，按字揭示 |
 | 音频 | 保留每个 I2V 镜头的模型环境声，可叠加连续 BGM |
@@ -108,22 +108,52 @@ cp -R hbg-classical-poem-silk-video/skill/classical-poem-silk-video/. \
   ~/.codex/skills/classical-poem-silk-video/
 ```
 
-## 🐳 Docker 运行时
+## ☁️ Wan 3.0 运行时
 
-静帧由 Agent 的内置 ImageGen 生成。图生视频与可选星标清理依赖：
+静帧由 Agent 的内置 ImageGen 生成。图生视频使用阿里云百炼 Wan 3.0，并通过官方 DashScope API 调用。
 
-- [Mr-funny/hbg-gemini-flow-suite](https://github.com/Mr-funny/hbg-gemini-flow-suite)
-- Docker 容器名：`gemini-flow-suite`
-- 工作区在容器内挂载为 `/workspace`
-- 输出目录在容器内挂载为 `/data/outputs`
+运行环境需要：
 
-先按运行时仓库 README 完成一次用户控制的授权，再运行：
+- Python 3
+- DashScope Python SDK
+- FFmpeg 和 ffprobe
+- ripgrep
+- 已开通阿里云百炼 `wan3.0-video`
+- `DASHSCOPE_API_KEY`
+- `DASHSCOPE_BASE_URL`
 
-```bash
-skill/classical-poem-silk-video/scripts/check_prerequisites.sh
-```
+建议在项目的 Python 虚拟环境中安装 DashScope：
 
-Skill 不包含、不上传、也不会打印 Cookie、API Key 或浏览器 Profile。详细约定见 [runtime-contract.md](skill/classical-poem-silk-video/references/runtime-contract.md)。
+    pip install -U dashscope
+
+在当前终端会话中设置百炼环境变量：
+
+    export DASHSCOPE_API_KEY="YOUR_API_KEY"
+    export DASHSCOPE_BASE_URL="YOUR_DASHSCOPE_NATIVE_API_BASE_URL"
+
+不要把真实 API Key 写入 README、脚本、Git 提交或其他项目文件。
+
+配置完成后运行：
+
+    skill/classical-poem-silk-video/scripts/check_wan3_prerequisites.sh
+
+图生视频调用链：
+
+    scripts/wan3_i2v.sh
+        ↓
+    scripts/wan3_i2v.py
+        ↓
+    DashScope
+        ↓
+    Alibaba Cloud Bailian
+        ↓
+    wan3.0-video
+
+本地静帧会作为 `first_frame` 输入发送给 Wan 3.0，生成的视频自动下载到项目的 `outputs/wan3/`。
+
+正常的首帧图生视频不依赖 Docker、Gemini Cookie、浏览器自动化或 HBG Gemini Flow Suite。
+
+详细运行约定见 [runtime-contract.md](skill/classical-poem-silk-video/references/runtime-contract.md)。
 
 ## 🤖 使用示例
 
@@ -147,7 +177,7 @@ Skill 不包含、不上传、也不会打印 Cookie、API Key 或浏览器 Prof
 
 ```text
 使用 $classical-poem-silk-video 检查这四段图生视频。
-重点排查建筑重构、鸟类复制、马腿畸形、柳叶脱落、白色星标、字幕安全区和黑帧转场。
+重点排查建筑重构、鸟类复制、马腿畸形、柳叶脱落、字幕安全区和黑帧转场。
 只重做不合格镜头，不要用后期推镜掩盖问题。
 ```
 
@@ -159,13 +189,12 @@ flowchart LR
     B --> C["逐句 / 两句一景"]
     C --> D["中国画风格通道"]
     D --> E["ImageGen 静帧"]
-    E --> F["Docker I2V"]
+    E --> F["Wan 3.0 I2V"]
     F --> G["早中晚抽帧验收"]
-    G --> H["白色星标清理"]
-    H --> I["毛笔字逐字字幕"]
-    I --> J["原环境声 + BGM"]
-    J --> K["画面与声音交叉溶解"]
-    K --> L["最终 MP4 QA"]
+    G --> H["毛笔字逐字字幕"]
+    H --> I["原环境声 + BGM"]
+    I --> J["画面与声音交叉溶解"]
+    J --> K["最终 MP4 QA"]
 ```
 
 四条动作原则：
@@ -192,7 +221,7 @@ flowchart LR
 
 完整复盘文章：
 
-> [《我用 Codex + AI 生图 + Docker，把〈钱塘湖春行〉做成了一条会呼吸的中国画视频》](docs/article.md)
+> [《我用 Codex + AI 生图 + Wan 3.0，把〈钱塘湖春行〉做成了一条会呼吸的中国画视频》](docs/article.md)
 
 ## ✅ 最终媒体质检
 
@@ -240,12 +269,12 @@ install.sh                        Codex / Claude Code 安装器
 - 不提交 API Key、Cookie、`.env`、Chrome Profile、Docker 数据卷或生成账号数据。
 - 不提交用户原始聊天、私人文案、本地项目路径或未授权素材。
 - 只在用户要求且适用条款允许时处理白色模型星标；传统红印与有意画面标记必须保留。
-- 运行时授权由用户本人完成，Skill 的生成流程只调用 Docker。
+- 运行时凭据由用户本人配置，Skill 的视频生成流程只通过 DashScope API 调用阿里云百炼 Wan 3.0。
 
 ## 📄 License
 
 - Skill、脚本与文档：MIT License
 - Ma Shan Zheng 字体：SIL Open Font License 1.1，见 `skill/classical-poem-silk-video/assets/OFL.txt`
-- HBG Gemini Flow Suite：独立项目与独立许可证，本仓库不重复分发
+- 阿里云百炼 Wan 3.0：通过官方 DashScope API 调用，本仓库不包含或分发模型服务本身
 
 欢迎提交 Issue 和 PR，一起把“这次终于改对了”变成“下一次默认不会再错”。
