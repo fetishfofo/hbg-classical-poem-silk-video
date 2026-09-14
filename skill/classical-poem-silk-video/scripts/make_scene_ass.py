@@ -44,7 +44,7 @@ YCbCr Matrix: TV.709
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Poem,{args.font},112,&H00D8E3E8,&H00D8E3E8,&H683A3732,&H82171310,0,0,0,0,100,100,1,0,1,1.4,2.2,5,0,0,0,1
+Style: Poem,{args.font},118,&H00F4F1E8,&H00F4F1E8,&H00302A25,&H90000000,0,0,0,0,100,100,1,0,1,2.8,3.5,5,0,0,0,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
